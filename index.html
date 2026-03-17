@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microcement kalkylator</title>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<style>
+body{font-family:Arial;margin:0;padding:20px;background:#f8fafc}
+.container{max-width:1100px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.card{background:#fff;padding:20px;border-radius:20px}
+input,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;margin-top:5px}
+button{width:100%;padding:15px;background:black;color:white;border:none;border-radius:10px;font-size:16px;margin-top:10px}
+.total{background:black;color:white;padding:20px;border-radius:15px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="card">
+<h2>Microcement kalkylator</h2>
+
+<label>Namn</label>
+<input id="name">
+
+<label>Plats i Stockholm</label>
+<input id="location">
+
+<label>Email</label>
+<input id="email">
+
+<label>Projekt</label>
+<textarea id="project"></textarea>
+
+<label>Bild</label>
+<input type="file" id="image">
+
+<label>Kvm</label>
+<input id="sqm" value="25">
+
+<label><input type="checkbox" id="rot"> ROT</label>
+</div>
+
+<div class="card">
+<h2>Pris</h2>
+<div id="result"></div>
+<div class="total" id="total"></div>
+
+<button onclick="send()">Skicka förfrågan</button>
+</div>
+</div>
+
+<script>
+const KEY = "a9d6a5a9-03c2-416a-bc66-8b27c75799a5";
+
+function calc(){
+let sqm=parseFloat(document.getElementById('sqm').value)||0;
+let labor=sqm*1300;
+let material=sqm*400;
+let van=5*350;
+let subtotal=labor+material+van;
+let vat=subtotal*0.25;
+let total=subtotal+vat;
+let rot=document.getElementById('rot').checked;
+let rotAmount=(labor*1.25)*0.3;
+let final=rot?total-rotAmount:total;
+
+document.getElementById('result').innerHTML=
+'Arbete: '+labor+' kr<br>Material: '+material+' kr<br>Servicebil: '+van+' kr';
+
+document.getElementById('total').innerHTML='Att betala: '+Math.round(final)+' kr';
+
+return {final, sqm};
+}
+
+document.querySelectorAll('input').forEach(e=>e.oninput=calc);
+calc();
+
+async function send(){
+let name=document.getElementById('name').value;
+let location=document.getElementById('location').value;
+let email=document.getElementById('email').value;
+let project=document.getElementById('project').value;
+let image=document.getElementById('image').files[0];
+
+if(!name||!location||!email){alert('Fyll i alla fält');return;}
+
+let data=new FormData();
+data.append("access_key", KEY);
+data.append("name", name);
+data.append("email", email);
+data.append("location", location);
+data.append("project", project);
+
+if(image){data.append("attachment", image);}
+
+await fetch("https://api.web3forms.com/submit", {
+method:"POST",
+body:data
+});
+
+alert("Skickat!");
+}
+</script>
+</body>
+</html>
