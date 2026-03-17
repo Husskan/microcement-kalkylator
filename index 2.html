@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Microcement-kalkylator Pro</title>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+    .min-h-screen { min-height: 100vh; }
+    .page { padding: 24px; }
+    .grid-wrap {
+      max-width: 1152px;
+      margin: 0 auto;
+      display: grid;
+      gap: 24px;
+      grid-template-columns: 1.05fr 0.95fr;
+    }
+    .card {
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+      border: 0;
+      overflow: hidden;
+    }
+    .card-header { padding: 24px 24px 0 24px; }
+    .card-content { padding: 24px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 14px;
+      background: #e2e8f0;
+      color: #0f172a;
+      margin-bottom: 12px;
+    }
+    h1, h2, p { margin: 0; }
+    .title-xl {
+      font-size: 30px;
+      line-height: 1.2;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    .title-lg {
+      font-size: 24px;
+      line-height: 1.25;
+      font-weight: 600;
+    }
+    .muted { color: #475569; }
+    .muted-sm { color: #64748b; font-size: 14px; }
+    .space-y-6 > * + * { margin-top: 24px; }
+    .space-y-4 > * + * { margin-top: 16px; }
+    .space-y-3 > * + * { margin-top: 12px; }
+    .space-y-2 > * + * { margin-top: 8px; }
+    .grid-2 {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1fr 1fr;
+    }
+    label {
+      display: block;
+      font-size: 16px;
+      font-weight: 500;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 16px;
+      padding: 12px 14px;
+      background: #fff;
+      color: #0f172a;
+      outline: none;
+    }
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    textarea:focus {
+      border-color: #94a3b8;
+      box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.15);
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .upload-box,
+    .toggle-box,
+    .consent-box {
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .upload-head,
+    .toggle-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .outline-btn,
+    .primary-btn {
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      border: none;
+    }
+    .outline-btn.small {
+      width: auto;
+      padding: 10px 16px;
+      font-size: 14px;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: #0f172a;
+    }
+    .outline-btn.main {
+      background: #fff;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+    }
+    .primary-btn {
+      background: #000;
+      color: #fff;
+    }
+    .primary-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .hidden { display: none; }
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .preview-item {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+    }
+    .preview-item img {
+      display: block;
+      width: 100%;
+      height: 128px;
+      object-fit: cover;
+    }
+    .remove-btn {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      border: none;
+      border-radius: 999px;
+      background: #000;
+      color: #fff;
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .empty-state {
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 24px;
+      font-size: 14px;
+      color: #64748b;
+    }
+    .summary-top,
+    .info-box {
+      border-radius: 16px;
+      background: #f8fafc;
+      padding: 16px;
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      font-size: 14px;
+    }
+    .row + .row { margin-top: 12px; }
+    .row .label { color: #475569; }
+    .row .value { font-weight: 500; color: #0f172a; text-align: right; }
+    .row.big .label,
+    .row.big .value { font-size: 16px; font-weight: 600; }
+    hr {
+      border: 0;
+      border-top: 1px solid #e2e8f0;
+      margin: 0;
+    }
+    .total-box {
+      border-radius: 16px;
+      background: #0f172a;
+      color: #fff;
+      padding: 20px;
+    }
+    .total-box .sub { color: #cbd5e1; font-size: 14px; }
+    .total-box .amount {
+      margin-top: 8px;
+      font-size: 30px;
+      font-weight: 600;
+    }
+    .tiny {
+      font-size: 12px;
+      line-height: 1.6;
+      color: #64748b;
+    }
+    .status {
+      display: none;
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 14px;
+    }
+    .status.success {
+      display: block;
+      background: #ecfdf5;
+      color: #047857;
+    }
+    .status.error {
+      display: block;
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+    .button-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* Switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 52px;
+      height: 30px;
+      flex: 0 0 auto;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: #cbd5e1;
+      border-radius: 999px;
+      transition: .2s ease;
+      cursor: pointer;
+    }
+    .slider:before {
+      content: "";
+      position: absolute;
+      height: 24px;
+      width: 24px;
+      left: 3px;
+      top: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: .2s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,.15);
+    }
+    .switch input:checked + .slider { background: #0f172a; }
+    .switch input:checked + .slider:before { transform: translateX(22px); }
+
+    .consent-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      color: #475569;
+      font-size: 14px;
+    }
+    .consent-box input {
+      margin-top: 2px;
+      width: 16px;
+      height: 16px;
+      flex: 0 0 auto;
+    }
+    code {
+      background: rgba(148,163,184,0.12);
+      padding: 2px 5px;
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      color: #334155;
+    }
+
+    @media (max-width: 1024px) {
+      .grid-wrap { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .page { padding: 16px; }
+      .card-header, .card-content { padding-left: 16px; padding-right: 16px; }
+      .title-xl { font-size: 26px; }
+      .title-lg { font-size: 22px; }
+      .grid-2, .button-grid { grid-template-columns: 1fr; }
+      .preview-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="min-h-screen page">
+    <div class="grid-wrap">
+      <section class="card">
+        <div class="card-header">
+          <div class="badge">Microcement-kalkylator Pro</div>
+          <h1 class="title-xl">Beräkna pris för microcement</h1>
+        </div>
+
+        <div class="card-content space-y-6">
+          <div class="grid-2">
+            <div class="space-y-2">
+              <label for="name">Ditt namn</label>
+              <input id="name" type="text" placeholder="För- och efternamn">
+            </div>
+            <div class="space-y-2">
+              <label for="phone">Telefonnummer</label>
+              <input id="phone" type="tel" placeholder="070-123 45 67">
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="space-y-2">
+              <label for="location">Var i Stockholm ska arbetet utföras?</label>
+              <input id="location" type="text" placeholder="T.ex. Södermalm, Täby, Nacka">
+            </div>
+            <div class="space-y-2">
+              <label for="email">Din e-postadress</label>
+              <input id="email" type="email" placeholder="din@email.se">
+              <p id="emailError" class="muted-sm hidden" style="color:#dc2626;">Ange en giltig e-postadress.</p>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label for="projectInfo">Beskriv ditt projekt</label>
+            <textarea id="projectInfo" placeholder="T.ex. badrum, endast golv, endast väggar eller både golv och väggar. Ange även underlag: kakel på väggar, klinker på golv eller matta på golv"></textarea>
+            <p class="muted-sm">Beskriv kort vad som ska göras så vi får en bättre förståelse av projektet.</p>
+          </div>
+
+          <div class="upload-box space-y-3">
+            <div class="upload-head">
+              <div>
+                <label for="images" style="margin-bottom: 4px;">Ladda upp bild på ditt projekt</label>
+                <p class="muted-sm">Standardläget i Web3Forms skickar en bildbilaga. För flera bilder krävs deras Pro-lösning.</p>
+              </div>
+              <button type="button" class="outline-btn small" id="pickImagesBtn">Välj bilder</button>
+            </div>
+
+            <input id="images" type="file" accept="image/*" class="hidden">
+            <div id="imageArea"></div>
+          </div>
+
+          <div class="space-y-2">
+            <label for="sqm">Totala ytors kvm</label>
+            <input id="sqm" type="text" inputmode="decimal" value="25" placeholder="Ange totala kvm för golv, väggar och ev. tak">
+            <p class="muted-sm">Ange sammanlagd yta i kvm för samtliga ytor som ska ha microcement: golv, väggar och eventuellt tak.</p>
+          </div>
+
+          <div class="toggle-box">
+            <div>
+              <p style="font-weight:500; color:#0f172a;">Visa pris med ROT-avdrag</p>
+              <p class="muted-sm">ROT beräknas endast på arbetskostnaden.</p>
+            </div>
+            <label class="switch" aria-label="Visa pris med ROT-avdrag">
+              <input id="withRot" type="checkbox">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <label class="consent-box">
+            <input id="accepted" type="checkbox">
+            <span>Jag godkänner att Microcement Stockholm kontaktar mig angående min förfrågan och att detta är en prisindikation, inte en slutlig offert.</span>
+          </label>
+        </div>
+      </section>
+
+      <aside class="card">
+        <div class="card-header">
+          <h2 class="title-lg">Prisöversikt</h2>
+          <p class="muted-sm" style="margin-top:8px;">Kalkylen visar både delposter och totalsumma.</p>
+        </div>
+
+        <div class="card-content space-y-4">
+          <div class="summary-top">
+            <div class="row">
+              <span class="label">Totala ytors kvm</span>
+              <span class="value" id="areaOut">25 kvm</span>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="row"><span class="label">Arbete exkl. moms</span><span class="value" id="laborExVat"></span></div>
+            <div class="row"><span class="label">Material exkl. moms</span><span class="value" id="materialExVat"></span></div>
+            <div class="row"><span class="label">Servicebil exkl. moms</span><span class="value" id="vanExVat"></span></div>
+          </div>
+
+          <hr>
+
+          <div class="space-y-3">
+            <div class="row"><span class="label">Summa exkl. moms</span><span class="value" id="subtotalExVat"></span></div>
+            <div class="row"><span class="label">Moms 25 %</span><span class="value" id="totalVat"></span></div>
+            <div class="row big"><span class="label">Summa inkl. moms</span><span class="value" id="totalIncVat"></span></div>
+          </div>
+
+          <hr>
+
+          <div class="space-y-3">
+            <div class="row"><span class="label">ROT-underlag (arbetskostnad inkl. moms)</span><span class="value" id="rotBaseIncVat"></span></div>
+            <div class="row"><span class="label">ROT-avdrag</span><span class="value" id="rotAmount"></span></div>
+          </div>
+
+          <div class="total-box">
+            <p class="sub" id="payLabel">Att betala utan ROT</p>
+            <p class="amount" id="payAmount"></p>
+          </div>
+
+          <p class="tiny">
+            ROT-avdrag visas som en preliminär beräkning. Enligt Skatteverket är ROT-avdraget 30 % av arbetskostnaden inklusive moms och gäller inte material, resor eller övriga kostnader. Slutligt avdrag beror på kundens rätt till ROT och hur mycket avdrag som redan utnyttjats under året.
+          </p>
+
+          <div class="info-box">
+            <p class="muted" style="font-size:14px;">
+              Detta är en prisindikation baserad på angivna uppgifter. I de flesta fall stämmer kalkylen väl, men ni granskar alltid förfrågan och återkommer med en exakt offert.
+            </p>
+          </div>
+
+          <div id="submitStatus" class="status"></div>
+
+          <div class="button-grid">
+            <button type="button" id="downloadPdfBtn" class="outline-btn main">Ladda ner offertunderlag PDF</button>
+            <button type="button" id="submitBtn" class="primary-btn">Skicka förfrågan</button>
+          </div>
+
+          <div class="upload-box" style="border-style:dashed;">
+            <p class="tiny">
+              Lägg in din egen Web3Forms access key i <code>WEB3FORMS_ACCESS_KEY</code>. Formuläret skickas sedan till <code>https://api.web3forms.com/submit</code> med <code>FormData</code> och <code>Accept: application/json</code>. Standarduppladdningen i Web3Forms stöder en bilaga upp till 5 MB, medan flera eller större filer kräver deras Advanced File Uploader på Pro-plan.
+            </p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const WEB3FORMS_ACCESS_KEY = "a9d6a5a9-03c2-416a-bc66-8b27c75799a5";
+
+    const VAT_RATE = 0.25;
+    const LABOR_PER_SQM = 1300;
+    const MATERIAL_PER_SQM = 400;
+    const VAN_DAYS = 5;
+    const VAN_PER_DAY = 350;
+    const ROT_RATE = 0.3;
+
+    const el = (id) => document.getElementById(id);
+
+    const nameInput = el("name");
+    const phoneInput = el("phone");
+    const locationInput = el("location");
+    const emailInput = el("email");
+    const emailError = el("emailError");
+    const projectInfoInput = el("projectInfo");
+    const imagesInput = el("images");
+    const sqmInput = el("sqm");
+    const withRotInput = el("withRot");
+    const acceptedInput = el("accepted");
+    const imageArea = el("imageArea");
+    const pickImagesBtn = el("pickImagesBtn");
+    const submitBtn = el("submitBtn");
+    const downloadPdfBtn = el("downloadPdfBtn");
+    const submitStatus = el("submitStatus");
+
+    let images = [];
+
+    function currency(n) {
+      return new Intl.NumberFormat("sv-SE", {
+        style: "currency",
+        currency: "SEK",
+        maximumFractionDigits: 0,
+      }).format(n);
+    }
+
+    function emailIsValid(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+    }
+
+    function parseArea() {
+      return Math.max(0, Number(String(sqmInput.value).replace(",", ".")) || 0);
+    }
+
+    function calcValues() {
+      const area = parseArea();
+      const laborExVat = area * LABOR_PER_SQM;
+      const materialExVat = area * MATERIAL_PER_SQM;
+      const vanExVat = VAN_DAYS * VAN_PER_DAY;
+
+      const laborVat = laborExVat * VAT_RATE;
+      const materialVat = materialExVat * VAT_RATE;
+      const vanVat = vanExVat * VAT_RATE;
+
+      const subtotalExVat = laborExVat + materialExVat + vanExVat;
+      const totalVat = laborVat + materialVat + vanVat;
+      const totalIncVat = subtotalExVat + totalVat;
+      const rotBaseIncVat = laborExVat + laborVat;
+      const rotAmount = withRotInput.checked ? rotBaseIncVat * ROT_RATE : 0;
+      const totalAfterRot = totalIncVat - rotAmount;
+
+      return {
+        area,
+        laborExVat,
+        materialExVat,
+        vanExVat,
+        laborVat,
+        materialVat,
+        vanVat,
+        subtotalExVat,
+        totalVat,
+        totalIncVat,
+        rotBaseIncVat,
+        rotAmount,
+        totalAfterRot,
+      };
+    }
+
+    function updateSummary() {
+      const values = calcValues();
+
+      el("areaOut").textContent = values.area.toLocaleString("sv-SE") + " kvm";
+      el("laborExVat").textContent = currency(values.laborExVat);
+      el("materialExVat").textContent = currency(values.materialExVat);
+      el("vanExVat").textContent = currency(values.vanExVat);
+      el("subtotalExVat").textContent = currency(values.subtotalExVat);
+      el("totalVat").textContent = currency(values.totalVat);
+      el("totalIncVat").textContent = currency(values.totalIncVat);
+      el("rotBaseIncVat").textContent = currency(values.rotBaseIncVat);
+      el("rotAmount").textContent = "-" + currency(values.rotAmount);
+      el("payLabel").textContent = withRotInput.checked ? "Att betala efter ROT" : "Att betala utan ROT";
+      el("payAmount").textContent = currency(withRotInput.checked ? values.totalAfterRot : values.totalIncVat);
+
+      return values;
+    }
+
+    function getOfferText() {
+      const values = calcValues();
+      return `OFFERTUNDERLAG – MICROCEMENT
+
+Kundnamn: ${nameInput.value || "Ej angivet"}
+Plats i Stockholm: ${locationInput.value || "Ej angivet"}
+Telefon: ${phoneInput.value || "Ej angivet"}
+Kundens e-post: ${emailInput.value || "Ej angivet"}
+Antal bilder bifogade av kund: ${images.length}
+
+PROJEKTINFORMATION
+${projectInfoInput.value || "Ej angivet"}
+
+BERÄKNING
+Totala ytors kvm: ${values.area}
+ROT-avdrag: ${withRotInput.checked ? "Ja" : "Nej"}
+
+KOSTNADSSAMMANSTÄLLNING
+Arbete exkl. moms: ${currency(values.laborExVat)}
+Material exkl. moms: ${currency(values.materialExVat)}
+Servicebil exkl. moms: ${currency(values.vanExVat)}
+Summa exkl. moms: ${currency(values.subtotalExVat)}
+Moms 25 %: ${currency(values.totalVat)}
+ROT-avdrag: -${currency(values.rotAmount)}
+Att betala: ${withRotInput.checked ? currency(values.totalAfterRot) : currency(values.totalIncVat)}
+
+Detta är en prisindikation som i de flesta fall stämmer väl. Slutlig offert lämnas efter att underlaget har granskats.`;
+    }
+
+    function renderImages() {
+      imageArea.innerHTML = "";
+
+      if (!images.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "Inga bilder valda ännu.";
+        imageArea.appendChild(empty);
+        return;
+      }
+
+      const grid = document.createElement("div");
+      grid.className = "preview-grid";
+
+      images.forEach((image, index) => {
+        const wrap = document.createElement("div");
+        wrap.className = "preview-item";
+
+        const img = document.createElement("img");
+        img.src = image.preview;
+        img.alt = `Projektbild ${index + 1}`;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "remove-btn";
+        btn.textContent = "Ta bort";
+        btn.addEventListener("click", () => removeImage(index));
+
+        wrap.appendChild(img);
+        wrap.appendChild(btn);
+        grid.appendChild(wrap);
+      });
+
+      imageArea.appendChild(grid);
+    }
+
+    function cleanupImages(list) {
+      list.forEach((img) => {
+        if (img && img.preview) URL.revokeObjectURL(img.preview);
+      });
+    }
+
+    function handleImages(event) {
+      const files = Array.from(event.target.files || []);
+      cleanupImages(images);
+
+      images = files.map((file) => ({
+        file,
+        preview: URL.createObjectURL(file)
+      }));
+
+      renderImages();
+    }
+
+    function removeImage(index) {
+      const removed = images.splice(index, 1);
+      cleanupImages(removed);
+      renderImages();
+    }
+
+    function showStatus(type, message) {
+      submitStatus.className = "status " + type;
+      submitStatus.textContent = message;
+    }
+
+    function clearStatus() {
+      submitStatus.className = "status";
+      submitStatus.textContent = "";
+    }
+
+    function setSubmitting(submitting) {
+      submitBtn.disabled = submitting || !canSubmit();
+      submitBtn.textContent = submitting ? "Skickar..." : "Skicka förfrågan";
+    }
+
+    function canSubmit() {
+      return !!(
+        nameInput.value.trim() &&
+        locationInput.value.trim() &&
+        emailIsValid(emailInput.value) &&
+        parseArea() > 0 &&
+        acceptedInput.checked
+      );
+    }
+
+    function validateEmailUI() {
+      emailError.classList.toggle("hidden", !(emailInput.value && !emailIsValid(emailInput.value)));
+    }
+
+    function updateUI() {
+      validateEmailUI();
+      updateSummary();
+      setSubmitting(false);
+    }
+
+    function downloadPdf() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const offerText = getOfferText();
+      const lines = doc.splitTextToSize(offerText, 180);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("Offertunderlag - Microcement", 15, 20);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      doc.text(lines, 15, 32);
+      doc.save(`offertunderlag-${(nameInput.value || "kund").toLowerCase().replace(/\s+/g, "-")}.pdf`);
+    }
+
+    async function submitRequest() {
+      if (!nameInput.value.trim() || !locationInput.value.trim() || !emailIsValid(emailInput.value)) {
+        alert("Fyll i namn, plats i Stockholm och en giltig e-postadress innan du skickar in förfrågan.");
+        return;
+      }
+
+      if (!acceptedInput.checked) {
+        alert("Bekräfta att vi får kontakta dig innan du skickar in förfrågan.");
+        return;
+      }
+
+      setSubmitting(true);
+      clearStatus();
+
+      try {
+        const values = calcValues();
+        const formData = new FormData();
+        formData.append("access_key", WEB3FORMS_ACCESS_KEY);
+        formData.append("subject", `Offertförfrågan microcement – ${nameInput.value}`);
+        formData.append("from_name", "Microcement-kalkylator");
+        formData.append("name", nameInput.value);
+        formData.append("phone", phoneInput.value);
+        formData.append("email", emailInput.value);
+        formData.append("location", locationInput.value);
+        formData.append("projectInfo", projectInfoInput.value || "Ej angivet");
+        formData.append("sqm", String(values.area));
+        formData.append("withRot", withRotInput.checked ? "Ja" : "Nej");
+        formData.append("laborExVat", currency(values.laborExVat));
+        formData.append("materialExVat", currency(values.materialExVat));
+        formData.append("vanExVat", currency(values.vanExVat));
+        formData.append("subtotalExVat", currency(values.subtotalExVat));
+        formData.append("totalVat", currency(values.totalVat));
+        formData.append("rotAmount", currency(values.rotAmount));
+        formData.append("totalToPay", withRotInput.checked ? currency(values.totalAfterRot) : currency(values.totalIncVat));
+        formData.append("message", getOfferText());
+        formData.append("replyto", emailInput.value);
+        formData.append("customerEmail", emailInput.value);
+
+        if (images[0] && images[0].file) {
+          formData.append("attachment", images[0].file);
+        }
+
+        const response = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: { Accept: "application/json" },
+          body: formData,
+        });
+
+        const data = await response.json().catch(() => null);
+
+        if (!response.ok || !(data && data.success)) {
+          throw new Error((data && data.message) || "Något gick fel när formuläret skickades.");
+        }
+
+        showStatus("success", "Tack! Din förfrågan har skickats in. Vi granskar underlaget och återkommer med en skarp offert.");
+
+        nameInput.value = "";
+        phoneInput.value = "";
+        emailInput.value = "";
+        locationInput.value = "";
+        projectInfoInput.value = "";
+        sqmInput.value = "25";
+        withRotInput.checked = false;
+        acceptedInput.checked = false;
+
+        cleanupImages(images);
+        images = [];
+        imagesInput.value = "";
+        renderImages();
+        updateUI();
+      } catch (error) {
+        showStatus("error", error.message || "Det gick inte att skicka formuläret just nu.");
+      } finally {
+        setSubmitting(false);
+      }
+    }
+
+    [nameInput, phoneInput, locationInput, emailInput, projectInfoInput, sqmInput].forEach((input) => {
+      input.addEventListener("input", updateUI);
+    });
+
+    withRotInput.addEventListener("change", updateUI);
+    acceptedInput.addEventListener("change", updateUI);
+    imagesInput.addEventListener("change", handleImages);
+    pickImagesBtn.addEventListener("click", () => imagesInput.click());
+    submitBtn.addEventListener("click", submitRequest);
+    downloadPdfBtn.addEventListener("click", downloadPdf);
+
+    renderImages();
+    updateUI();
+
+    window.addEventListener("beforeunload", () => cleanupImages(images));
+  </script>
+</body>
+</html>
